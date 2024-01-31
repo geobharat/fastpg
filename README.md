@@ -1,2 +1,2 @@
 # fastpg
-FastAPI implementation with PostgreSQL
+FastAPI implementation of PostgreSQL
