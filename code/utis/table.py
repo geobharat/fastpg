@@ -13,6 +13,4 @@ async def get_table(query):
     )
   
     types = await con.fetch(query)
-    for tp in types:
-        print(tp)
     return types

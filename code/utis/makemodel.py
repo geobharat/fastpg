@@ -21,7 +21,8 @@ def convert_model(model_name, current_dict):
         else:
             field_type = str
         model_fields[field_name] = (Optional[str],None)
-
+    model_fields['limit'] = (Optional[int], 10)
+    model_fields['offset'] = (Optional[int], 0)
     return create_model(model_name, **model_fields)
 
 

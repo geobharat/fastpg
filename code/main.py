@@ -27,18 +27,6 @@ async def read_root():
     return {"message": "Hello World"}
 
 
-@app.get("/items/")
-async def read_items(
-    flag: str = Query(
-        bool,
-        title="Boolean Flag",
-        description="A boolean flag",
-        schema={"type": "string", "format": "boolean"},
-    )
-):
-    """Read items with a boolean flag."""
-    return {"flag": flag}
-
 
 async def gettab():
     con = await asyncpg.connect(
