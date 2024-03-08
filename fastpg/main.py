@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, Query,Request
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, APIRouter, Query, Request
 import asyncpg
 from typing import Optional
 from pydantic import BaseModel
@@ -6,17 +7,21 @@ from fastapi import Depends
 from utis.table import get_table
 from pydantic import BaseModel
 from typing import Optional
-from utis.makemodel import convert_model,convert_op
-from fastapi.openapi.utils import get_openapi
-from config import settings
+from utis.makemodel import convert_model, convert_op
 from fastapi.middleware.cors import CORSMiddleware
+from config import settings
 
+@asynccontextmanager
+async def lifespan(app):
+    await gettab()
+    yield
 
-app = FastAPI(title=settings.name,
+app = FastAPI(lifespan=lifespan,
+    title=settings.name,
     docs_url=settings.docs_url,
     description=settings.description,
     version=settings.version,)
-# Set all CORS enabled origins
+
 if settings.cors_origins:
     app.add_middleware(
         CORSMiddleware,
@@ -25,6 +30,7 @@ if settings.cors_origins:
         allow_methods=["GET"],
         allow_headers=["*"],
     )
+
 
 
 async def gettab():
@@ -45,7 +51,6 @@ async def gettab():
         maintab[tp[0]][tp[1]] = tp[2]
 
     for key in maintab:
-        print(key)
         theMod = convert_model(key, maintab[key])
         router = APIRouter()
 
@@ -77,6 +82,4 @@ async def gettab():
         app.include_router(router, prefix=f"/{key}", tags=[key])
 
 
-@app.on_event("startup")
-async def startup_event():
-    await gettab()
+
