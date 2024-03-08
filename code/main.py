@@ -1,4 +1,5 @@
-from fastapi import FastAPI, APIRouter, Query,Request
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, APIRouter, Query, Request
 import asyncpg
 from typing import Optional
 from pydantic import BaseModel
@@ -6,11 +7,16 @@ from fastapi import Depends
 from utis.table import get_table
 from pydantic import BaseModel
 from typing import Optional
-from utis.makemodel import convert_model,convert_op
-from config import user, host,password,database,port, schema
+from utis.makemodel import convert_model, convert_op
+from config import user, host, password, database, port, schema
+
+@asynccontextmanager
+async def lifespan(app):
+    await gettab()
+    yield
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 
 
 def sample(table: str):
@@ -54,7 +60,6 @@ WHERE
         maintab[tp[0]][tp[1]] = tp[2]
 
     for key in maintab:
-        print(key)
         theMod = convert_model(key, maintab[key])
         router = APIRouter()
 
@@ -78,6 +83,4 @@ WHERE
         app.include_router(router, prefix=f"/{key}", tags=[key])
 
 
-@app.on_event("startup")
-async def startup_event():
-    await gettab()
+
