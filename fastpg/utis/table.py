@@ -3,7 +3,7 @@ from config import settings
 
 async def get_table(query):
     con = await asyncpg.connect(
-        user=settings.user, host=settings.host, password=settings.password, database=settings.dbname, port=settings.port
+        user=settings.username, host=settings.host, password=settings.password, database=settings.dbname, port=settings.port
     )
 
     types = await con.fetch(query)
