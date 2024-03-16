@@ -7,10 +7,10 @@ from fastapi import Depends
 from utis.table import get_table
 from pydantic import BaseModel
 from typing import Optional
-from utis.makemodel import convert_model, convert_op
-from fastapi.middleware.cors import CORSMiddleware
+from utis.makemodel import convert_model,convert_op
+from fastapi.openapi.utils import get_openapi
 from config import settings
-
+from fastapi.middleware.cors import CORSMiddleware
 @asynccontextmanager
 async def lifespan(app):
     await gettab()
@@ -30,7 +30,6 @@ if settings.cors_origins:
         allow_methods=["GET"],
         allow_headers=["*"],
     )
-
 
 
 async def gettab():
