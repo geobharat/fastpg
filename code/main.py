@@ -8,9 +8,14 @@ from pydantic import BaseModel
 from typing import Optional
 from utis.makemodel import convert_model,convert_op
 from config import user, host,password,database,port, schema
+from fastapi.openapi.utils import get_openapi
 
+app = FastAPI(title="FastAPI Implementation of PostgreSQL",
+    docs_url="/",
+    description="Convert your PostgreSQL Database into executable APIs",
+    version="0.0.1",
+    swagger_ui_parameters={"defaultModelsExpandDepth": -1},)
 
-app = FastAPI()
 
 
 def sample(table: str):
@@ -63,7 +68,8 @@ WHERE
             core_query =  f"""SELECT * from "{schema}"."{router_name}" """  
             all_queries = []
             for field_name, field_value in m.dict().items():
-                if field_value is not None and len(field_value.split('.')) == 2:
+                
+                if field_value is not None and field_name != 'limit' and field_name != 'offset' and len(field_value.split('.')) == 2:
                     operation = field_value.split('.')[0]
                     value = field_value.split('.')[1]
                     query_string =  f''+ field_name + ' ' + convert_op(operation) + " '" + value  + "'" #f'"{field_name} {convert_op(operation)}'

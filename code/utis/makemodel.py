@@ -35,7 +35,7 @@ def convert_op(op):
         return '>'
     elif op == 'lt' :
         return '<'
-    elif op == 'ge' :
+    elif op == 'gte' :
         return '>='
-    elif op == 'le' :
+    elif op == 'lte' :
         return '<='
