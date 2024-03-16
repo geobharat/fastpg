@@ -20,22 +20,22 @@ def convert_model(model_name, current_dict):
             field_type = str
         else:
             field_type = str
-        model_fields[field_name] = (Optional[str],None)
-    model_fields['limit'] = (Optional[int], 10)
-    model_fields['offset'] = (Optional[int], 0)
+        model_fields[field_name] = (Optional[str], None)
+    model_fields["limit"] = (Optional[int], 10)
+    model_fields["offset"] = (Optional[int], 0)
     return create_model(model_name, **model_fields)
 
 
 def convert_op(op):
-    if op == 'eq' : 
-        return '='
-    elif op == 'ne' :
-        return '!='
-    elif op == 'gt' :
-        return '>'
-    elif op == 'lt' :
-        return '<'
-    elif op == 'gte' :
-        return '>='
-    elif op == 'lte' :
-        return '<='
+    if op == "eq":
+        return "="
+    elif op == "ne":
+        return "!="
+    elif op == "gt":
+        return ">"
+    elif op == "lt":
+        return "<"
+    elif op == "gte":
+        return ">="
+    elif op == "lte":
+        return "<="

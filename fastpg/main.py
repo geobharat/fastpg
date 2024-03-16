@@ -7,50 +7,36 @@ from utis.table import get_table
 from pydantic import BaseModel
 from typing import Optional
 from utis.makemodel import convert_model,convert_op
-from config import user, host,password,database,port, schema
 from fastapi.openapi.utils import get_openapi
-
-app = FastAPI(title="FastAPI Implementation of PostgreSQL",
-    docs_url="/",
-    description="Convert your PostgreSQL Database into executable APIs",
-    version="0.0.1",
-    swagger_ui_parameters={"defaultModelsExpandDepth": -1},)
+from config import settings
+from fastapi.middleware.cors import CORSMiddleware
 
 
-
-def sample(table: str):
-    print(table)
-    return {"Hello": table}
-
-
-db_tables = []
-
-
-# Example route
-@app.get("/")
-async def read_root():
-    return {"message": "Hello World"}
-
+app = FastAPI(title=settings.name,
+    docs_url=settings.docs_url,
+    description=settings.description,
+    version=settings.version,)
+# Set all CORS enabled origins
+if settings.cors_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_credentials=True,
+        allow_methods=["GET"],
+        allow_headers=["*"],
+    )
 
 
 async def gettab():
     con = await asyncpg.connect(
-        user=user,
-        host=host,
-        password=password,
-        database=database,
-        port=port
+        user=settings.username,
+        host=settings.host,
+        password=settings.password,
+        database=settings.dbname,
+        port=settings.port
     )
     types = await con.fetch(
-        f"""SELECT 
-    table_name, 
-    column_name, 
-    data_type 
-FROM 
-    information_schema.columns 
-WHERE 
-    table_schema = '{schema}';
-                            """
+        f"""SELECT table_name, column_name, data_type  FROM  information_schema.columns  WHERE  table_schema = '{settings.schema}';"""
     )
     maintab = {}
     for tp in types:
@@ -67,6 +53,10 @@ WHERE
             router_name = request.url.path.split('/')[1]
             core_query =  f"""SELECT * from "{schema}"."{router_name}" """  
             all_queries = []
+            limit_value = m.dict().get('limit')
+            offset_value = m.dict().get('offset')
+            del m.dict()['limit']
+            del m.dict()['offset']
             for field_name, field_value in m.dict().items():
                 
                 if field_value is not None and field_name != 'limit' and field_name != 'offset' and len(field_value.split('.')) == 2:
@@ -77,6 +67,9 @@ WHERE
             if len(all_queries) != 0:
                 core_query += " where "
                 core_query +=  " and ".join(all_queries)
+            core_query += f" LIMIT {limit_value}"
+            core_query += f" OFFSET {offset_value}"
+            print(core_query)
             q =  await get_table(core_query)
             return q 
 
